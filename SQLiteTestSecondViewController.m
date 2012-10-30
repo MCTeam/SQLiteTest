@@ -60,7 +60,7 @@
     NSLog(@"hahah");
     
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+	// Do any additional setup after loading the view, typically from a nib.//
 }
 
 - (void)viewDidUnload
@@ -103,6 +103,7 @@
 
 -(void)viewWillAppear:(BOOL)animated
 {
+    //use to refresh
     [scoreArray removeAllObjects];
     
     sqlite3 *database;
