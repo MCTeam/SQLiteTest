@@ -15,6 +15,7 @@
 
 @implementation SQLiteTestSecondViewController
 @synthesize scoreArray;
+@synthesize table;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -26,12 +27,47 @@
     }
     return self;
 }
-	
+
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController
+{
+    
+}
 
 - (void)viewDidLoad
 {
     scoreArray = [[NSMutableArray alloc]init];
 
+    [self queryDB];
+    
+    NSLog(@"hahah");
+    
+    [super viewDidLoad];
+	// Do any additional setup after loading the view, typically from a nib.//
+}
+
+- (void)viewDidUnload
+{
+    [table release];
+    [self setTable:nil];
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+}
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+}
+
+- (NSString *)dataFilePath 
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentDirectory = [paths objectAtIndex:0];
+    
+    return [documentDirectory stringByAppendingPathComponent:kFilename];
+}
+
+- (void)queryDB
+{
     sqlite3 *database;
     
     if (sqlite3_open([[self dataFilePath] UTF8String], &database) != SQLITE_OK) {
@@ -56,30 +92,6 @@
     }
     
     sqlite3_close(database);
-    
-    NSLog(@"hahah");
-    
-    [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.//
-}
-
-- (void)viewDidUnload
-{
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
-}
-
-- (NSString *)dataFilePath 
-{
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentDirectory = [paths objectAtIndex:0];
-    
-    return [documentDirectory stringByAppendingPathComponent:kFilename];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -101,36 +113,15 @@
     return cell;
 }
 
--(void)viewWillAppear:(BOOL)animated
+- (void)viewWillAppear:(BOOL)animated
 {
-    //use to refresh
     [scoreArray removeAllObjects];
-    
-    sqlite3 *database;
-    
-    if (sqlite3_open([[self dataFilePath] UTF8String], &database) != SQLITE_OK) {
-        sqlite3_close(database);
-        NSAssert(0,@"Failed to open database");
-    }
-    
-    char *select = "SELECT SCORE FROM SCORE ORDER BY SCORE DESC;";
-    
-    sqlite3_stmt *stmt;
-    if (sqlite3_prepare_v2(database, select, -1, &stmt, nil) == SQLITE_OK) {
-        
-        while (sqlite3_step(stmt) == SQLITE_ROW)
-        {
-            char *score = (char*)sqlite3_column_text(stmt, 0);
-            NSString *scoreString = [[NSString alloc] initWithUTF8String:score];
-            
-            [scoreArray addObject:scoreString];
-        }
-        sqlite3_finalize(stmt);
-    }
-    sqlite3_close(database);
+    [self queryDB];
+    [table reloadData];
 }
 
 - (void)dealloc {
+    [table release];
     [super dealloc];
 }
 @end

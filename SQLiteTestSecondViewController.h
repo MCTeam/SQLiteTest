@@ -11,12 +11,13 @@
 #define kFilename @"data.sqlite3"
 
 @interface SQLiteTestSecondViewController : UIViewController
-    <UITableViewDelegate, UITableViewDataSource>
+    <UITableViewDelegate, UITableViewDataSource, UITabBarControllerDelegate>
 {
     NSMutableArray *scoreArray;
 }
 
 @property (nonatomic, retain) NSMutableArray *scoreArray;
+@property (retain, nonatomic) IBOutlet UITableView *table;
 
 
 @end
